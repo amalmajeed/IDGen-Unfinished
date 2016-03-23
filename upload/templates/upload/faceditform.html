@@ -1,0 +1,32 @@
+
+
+<!DOCTYPE html>
+<html>	
+<head>
+<title>Edit Faculty Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="/static/css/style.css">
+<meta name="keywords" content="Edit Faculty Details" />
+</head>
+
+<body>
+	<div class="logo"></div> 
+	<div class="login-block">
+	    <h1>Edit Faculty Details</h1>
+	    <div><h1>{{q.name}}</h1></div>
+	    <form method="post" action="{% url 'facsave' %}" enctype="multipart/form-data">{% csrf_token %}
+	        <label for="name">Name:</label><input type="text" name="name" id="name" value="{{q.name}}"/>
+			<label for="designation">Designation:</label><input type="text" name="designation" id="designation" value="{{q.designation}}"/>
+			<label for="dateofbirth">Date of Birth:</label><input type="text" name="dateofbirth" id="dateofbirth" value="{{q.dateofbirth.year}}-{{q.dateofbirth.month}}-{{q.dateofbirth.day}}"/>
+			<label for="bloodgroup">Blood Group:</label><input type="text" name="bloodgroup" id="bloodgroup" value="{{q.bloodgroup}}"/>
+			<label for="address">Address:</label><input type="text" name="address" id="address" value="{{q.address}}"/>
+			<label for="contact">Contact:</label><input type="text" name="contact" id="contact" value="{{q.contact}}"/>
+			<label for="photo">Photo:</label><input type="file" name="photo" id="photo" value="{{q.photo}}"/>
+			<input type="hidden" name="fac" id="range" value="{{q.pk}}">
+	        <input type='submit' value='Submit' style=background-color:#FF656C;/>
+	    </form>
+	</div>
+
+</body>
+
+</html>

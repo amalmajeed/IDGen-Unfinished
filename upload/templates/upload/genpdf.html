@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>	
+<head>
+<title>Student Registration</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="/static/css/style.css">
+<meta name="keywords" content="Student Registration For Id Card" />
+</head>
+
+<body>
+	<div class="logo"></div> 
+	<div class="login-block">
+	    <h1>Student Pdf Generation</h1>
+	    {% if error_message %}<p><strong>{{error_message}}</strong></p>{%endif%}
+	    <form action="{% url 'genpdf' %}"  method="post">{% csrf_token %}
+	        <div>
+	        <input type="text" name="range" placeholder="Enter a range e.g:-6500-6510"></div>
+            <div>
+	        <input type='submit' value='Range PDF' style=background-color:#FF656C;/></div>
+	    </form>
+
+	    <div>
+	    <a href="{%url 'genpdf'%}"><button>FULL PDF</button></a>
+	    </div>
+	    <div>
+	    <a href="{%url 'singlestud'%}"><button>SINGLE PDF</button></a>
+	    </div>
+	    </div>
+	</div>
+
+</body>
+
+</html>
+

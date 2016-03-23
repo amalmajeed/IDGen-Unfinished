@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>	
+<head>
+<title>Edit Faculty Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="/static/css/style.css">
+<meta name="keywords" content="Edit Faculty Details" />
+</head>
+<!--<div><label for="selection">None</label><input type="radio" name="selection" value="none"></div>-->
+
+{%for i in faculty%}
+<div>
+
+	<p>Name: {{i.name}}</p>
+	<p>Designation: {{i.designation}}</p>
+    <div><a href="/idcard/facultyEdit/{{i.id}}"><button type="button">Edit</button></a></div>
+</div>
+
+{%endfor%}
+
+</html>

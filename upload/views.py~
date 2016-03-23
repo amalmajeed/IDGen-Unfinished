@@ -1,0 +1,405 @@
+from django.shortcuts import render
+from .forms import StudentForm,FacultyForm,Sd
+from .models import stud,faculty,SDesign
+import re
+from django.http import HttpResponse,HttpResponseRedirect
+# imports for reportlab pdfgeneration 
+import os
+import urllib2
+from reportlab.graphics.barcode import code128
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.lib.units import mm
+from reportlab.pdfgen import canvas
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from django.utils.encoding import smart_str
+from django.core.exceptions import ObjectDoesNotExist
+#from django.core.exceptions import DoesNotExist
+import zipfile
+
+
+root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+def mainpage(request):
+   return render(request,'upload/home.html')
+
+def student(request):
+   if request.method=='POST':
+     form=StudentForm(request.POST,request.FILES)
+     if form.is_valid():
+       instance=form.save(commit=False)
+       instance.save()
+       return render(request,'upload/home.html') 
+     else:
+       errormsg="Form not valid"
+       form=StudentForm()
+       context={"form":form,"error_message":errormsg}
+       return render(request,'upload/studentform.html',context)
+
+   else:
+     errormsg="Method not POST"
+     form=StudentForm()
+     context={"form":form,"error_message":errormsg}
+     return render(request,'upload/studentform.html',context)
+
+def faculty1(request):
+   if request.method=='POST':
+     form=FacultyForm(request.POST,request.FILES)
+     if form.is_valid():
+       instance=form.save(commit=False)
+       instance.save()
+       return render(request,'upload/home.html') 
+     else:
+       errormsg="Form not valid"
+       form=FacultyForm()
+       context={"form":form,"error_message":errormsg}
+       return render(request,'upload/facultyform.html',context)
+
+   else:
+     errormsg="Method not POST"
+     form=FacultyForm()
+     context={"form":form,"error_message":errormsg}
+     return render(request,'upload/facultyform.html',context)
+
+def timage(request):
+    q=stud.objects.all()
+    context={"q":q}
+    return render(request,'upload/timage.html',context)
+
+def generatepdf(request):
+     q=stud.objects.all()
+     details=SDesign.objects.get()
+     back = root +'/'+str(details.bdesign)[2:]
+     princi = root + '/'+str(details.psign)[2:]
+     logoright = root+'/'+ str(details.ilogo)[2:]
+     logoleft = root +'/'+ str(details.clogo)[2:]
+     barcode_value = "U617513CSB99"
+     barcode128 = code128.Code128(barcode_value, barHeight=50*mm, barWidth=1.5*mm)
+     width = 540*mm
+     height = 860*mm
+     c = canvas.Canvas('front.pdf')
+     for i in q:
+        pic =i.photo.url
+       	c.setPageSize((width, height))
+	if back:
+		c.drawImage(back, 0, 0, height=height, width=width)
+	#c.saveState()
+	if logoleft:
+		c.drawImage(logoleft, 20*mm, 740*mm, height=80*mm, width=80*mm)
+	if logoright:
+		c.drawImage(logoright, 450*mm, 740*mm, height=80*mm, width=80*mm)
+	c.setFont(str(details.cfont), int(details.cfontsize))
+	c.drawCentredString(width/2, height-(60*mm),str(details.college))
+	c.setFont(str(details.addline1to5font), int(details.addline1to5fontsize))
+	c.drawCentredString(width/2, height-(80*mm),str(details.addline1))
+	c.setFont(str(details.addline1to5font), int(details.addline1to5fontsize))
+	c.drawCentredString(width/2, height-(100*mm), str(details.addline2))
+	#c.drawCentredString(width/2, height-(120*mm), "")  Kerala, India, PIN: 682 021 
+	c.drawCentredString(width/2, height-(120*mm),str(details.addline3))
+	c.drawCentredString(width/2, height-(140*mm),str(details.addline4))
+	c.setFont(str(details.addline1to5font), int(details.addline1to5fontsize))
+	c.drawCentredString(width/2, height-(160*mm), str(details.addline5))
+	c.drawImage(pic, 170*mm, height-(375*mm), height=200*mm, width=200*mm)
+	c.setFont(str(details.detfont), int(details.detfontsize))
+	c.drawString(30*mm, 430*mm, "Name ")
+	c.drawString(165*mm, 430*mm,i.name)
+	c.setFont(str(details.detfont), int(details.detfontsize))
+	c.drawString(30*mm, 340*mm, "Course :")
+	c.drawString(165*mm, 340*mm,i.course)
+	c.drawString(30*mm, 280*mm, "Branch :")
+	c.drawString(165*mm, 280*mm, i.branch)
+	c.drawString(30*mm, 180*mm, "ADMN No :")
+	c.drawString(165*mm, 180*mm, i.admno)
+	c.drawString(30*mm, 120*mm, "Valid Till:")
+	c.drawString(165*mm, 120*mm,str(i.validtill.day)+'/'+str(i.validtill.month)+'/'+str(i.validtill.year))
+	c.drawString(30*mm, 60*mm, "Date Of Birth:")
+	c.drawString(165*mm, 60*mm,str(i.dateofbirth.day)+'/'+str(i.dateofbirth.month)+'/'+str(i.dateofbirth.year))
+	c.setFont('Times-Bold', 60)
+	c.drawString(420*mm, 20*mm, "Principal")
+	if princi:
+		c.drawImage(princi, 420*mm, 45*mm, height= 50*mm, width=80*mm)
+	c.showPage()
+      c.save()
+      c = canvas.Canvas('back.pdf')
+      for i in q:
+        c.setPageSize((width, height))
+        c.setFont(str(details.detfont), int(details.detfontsize))
+	barcode128.drawOn(c, 130*mm, 750*mm)
+	c.drawString(190*mm, 720*mm, "U617513CSB27")
+	c.drawString(30*mm, 630*mm, "Blood Group ")
+	c.drawString(210*mm, 630*mm,i.bloodgroup)
+	c.drawString(30*mm, 550*mm, "Address ")
+        le=i.address.__len__()
+        n=0
+        #x=2
+        ht=550
+        y=re.split(',',i.address)
+        while(n<=y.__len__()):
+           c.drawString(210*mm, ht*mm,",".join(y[n:n+2]))
+           n=n+2
+           ht=ht-40
+	#c.drawString(210*mm, 550*mm, ": FLAT 2A")
+	#c.drawString(210*mm, 500*mm, "  SLYLINE BUILDERS")
+	#c.drawString(210*mm, 450*mm, "  APJ ROAD")
+	#c.drawString(210*mm, 400*mm, "  EDAPPALLY TOLL,")
+	#c.drawString(210*mm, 350*mm, "  EDAPPALLY P.O.")
+	#c.drawString(210*mm, 300*mm, "  682024")
+	c.drawString(30*mm, 170*mm, "Contact No. ")
+	c.drawString(210*mm, 170*mm,i.contact1)
+	c.drawString(210*mm, 140*mm,i.contact2)
+	c.drawString(30*mm, 60*mm, "Signature     :")
+	c.rect(160*mm,30*mm,320*mm,70*mm)
+	c.showPage()
+     c.save()
+     ###### TO DISPLAY PDF VIA BROWSER  ###
+     #with open('amal.pdf', 'rb') as pdf:
+     #   response = HttpResponse(pdf.read(),content_type='application/pdf')
+     #   response['Content-Disposition'] = 'filename=some_file.pdf'
+     #   return response
+     #pdf.closed
+     arch=zipfile.ZipFile("id.zip","w")
+     arch.write('front.pdf')
+     arch.write('back.pdf')
+     arch.close()
+     response = HttpResponse(open('/home/amalmajeed/python/djangoprojects/idcard/id.zip', 'rb').read(), content_type='application/zip')
+     response['Content-Disposition'] = 'attachment; filename=simple.zip'
+     return response
+     return render(request,'upload/home.html')
+
+def rlab(request):
+	details = SDesign.objects.get()
+        #print str(details.bdesign.url)[2:]
+	back = root +'/'+str(details.bdesign)[2:]
+	pic = root + '/photo.jpg'
+	princi = root + '/'+str(details.psign)[2:]
+	logoright = root+'/'+ str(details.ilogo)[2:]
+	logoleft = root +'/'+ str(details.clogo)[2:]
+	barcode_value = "U617513CSB99"
+	barcode128 = code128.Code128(barcode_value, barHeight=50*mm, barWidth=1.5*mm)
+	width = 540*mm
+	height = 860*mm
+        #print str(details.college)
+	c = canvas.Canvas('imageabs.pdf')
+	c.setPageSize((width, height))
+	if back:
+		c.drawImage(back, 0, 0, height=height, width=width)
+	#c.saveState()
+	if logoleft:
+		c.drawImage(logoleft, 20*mm, 740*mm, height=80*mm, width=80*mm)
+	if logoright:
+		c.drawImage(logoright, 450*mm, 740*mm, height=80*mm, width=80*mm)
+	c.setFont(str(details.cfont), int(details.cfontsize))
+	c.drawCentredString(width/2, height-(60*mm),str(details.college))
+	c.setFont(str(details.addline1to5font), int(details.addline1to5fontsize))
+	c.drawCentredString(width/2, height-(80*mm),str(details.addline1))
+	c.setFont(str(details.addline1to5font), int(details.addline1to5fontsize))
+	c.drawCentredString(width/2, height-(100*mm), str(details.addline2))
+	#c.drawCentredString(width/2, height-(120*mm), "")  Kerala, India, PIN: 682 021 
+	c.drawCentredString(width/2, height-(120*mm),str(details.addline3))
+	c.drawCentredString(width/2, height-(140*mm),str(details.addline4))
+	c.setFont(str(details.addline1to5font), int(details.addline1to5fontsize))
+	c.drawCentredString(width/2, height-(160*mm), str(details.addline5))
+	c.drawImage(pic, 170*mm, height-(375*mm), height=200*mm, width=200*mm)
+	c.setFont(str(details.detfont), int(details.detfontsize))
+	c.drawString(30*mm, 430*mm, "Name ")
+	c.drawString(165*mm, 430*mm, ": JOMY EMMANUEL")
+	c.setFont(str(details.detfont), int(details.detfontsize))
+	c.drawString(30*mm, 340*mm, "Course ")
+	c.drawString(165*mm, 340*mm, ": BTech")
+	c.drawString(30*mm, 280*mm, "Branch ")
+	c.drawString(165*mm, 280*mm, ": Computer Science And Engineering")
+	c.drawString(30*mm, 180*mm, "ADMN No ")
+	c.drawString(165*mm, 180*mm, ": 6175/13")
+	c.drawString(30*mm, 120*mm, "Valid Till ")
+	c.drawString(165*mm, 120*mm, ": 30-06-2017")
+	c.drawString(30*mm, 60*mm, "Date Of Birth ")
+	c.drawString(165*mm, 60*mm, ": 06/05/1995")
+	c.setFont('Times-Bold', 60)
+	c.drawString(420*mm, 20*mm, "Principal")
+	if princi:
+		c.drawImage(princi, 420*mm, 45*mm, height= 50*mm, width=80*mm)
+	c.showPage()
+
+	c.setFont(str(details.detfont), int(details.detfontsize))
+	barcode128.drawOn(c, 130*mm, 750*mm)
+	c.drawString(190*mm, 720*mm, "U617513CSB27")
+	c.drawString(30*mm, 630*mm, "Blood Group ")
+	c.drawString(210*mm, 630*mm, ": A+")
+	c.drawString(30*mm, 550*mm, "Address ")
+	c.drawString(210*mm, 550*mm, ": FLAT 2A")
+	c.drawString(210*mm, 500*mm, "  SLYLINE BUILDERS")
+	c.drawString(210*mm, 450*mm, "  APJ ROAD")
+	c.drawString(210*mm, 400*mm, "  EDAPPALLY TOLL,")
+	c.drawString(210*mm, 350*mm, "  EDAPPALLY P.O.")
+	c.drawString(210*mm, 300*mm, "  682024")
+	c.drawString(30*mm, 170*mm, "Contact No. ")
+	c.drawString(210*mm, 170*mm, ": 0484-2657856")
+	c.drawString(210*mm, 140*mm, "  9895462865")
+	c.drawString(30*mm, 60*mm, "Signature     :")
+	c.rect(160*mm,30*mm,320*mm,70*mm)
+	
+	c.save()
+
+	with open('imageabs.pdf', 'rb') as pdf:
+		response = HttpResponse(pdf.read(),content_type='application/pdf')
+		response['Content-Disposition'] = 'filename=some_file.pdf'
+		return response
+	pdf.closed
+
+def editstud(request):
+   if request.method=='POST':
+      qset=[]
+      flg=0
+      #months ={"January":"01","February":"02","March":"03","April":"04","May":"05","June":"06","July":"07","August":"08","September":"9","October":"10","November":"11","December":"12"}
+      try:
+         start=int(request.POST['adm'].split('-')[0])
+         end=int(request.POST['adm'].split('-')[1])
+         for i in range(start,end+1):
+            for q in stud.objects.all():
+              if(int(q.admno.split('/')[0])==i):
+                if(q.branch==request.POST['dept']):
+                    qset.append(q)
+                    flg=1
+         if(flg==0):
+             depts=[]
+             for q in stud.objects.all():
+                depts.append(q.branch)
+             depts=list(set(depts))
+             return render(request,'upload/editpagestud.html',{"error":"No match found!","depts":depts})
+         #q=stud.objects.get(admno=request.POST['adm'])
+      except:
+         depts=[]
+         for q in stud.objects.all():
+            depts.append(q.branch)
+         depts=list(set(depts))
+         return render(request,'upload/editpagestud.html',{"error":"Invalid Format! Give range eg:-6100-6132","depts":depts})
+      context={'q':qset,'range':request.POST['adm'],'dept':request.POST['dept']}
+      return render(request,'upload/studeditform.html',context)
+   else:
+      depts=[]
+      for q in stud.objects.all():
+         depts.append(q.branch)
+      depts=list(set(depts))
+      return render(request,'upload/editpagestud.html',{"depts":depts})          
+   
+def editfac(request):
+   if request.method=='POST':
+      #months ={"January":"01","February":"02","March":"03","April":"04","May":"05","June":"06","July":"07","August":"08","September":"9","October":"10","November":"11","December":"12"}
+      try:
+         q=faculty.objects.get(name=request.POST['name'])
+      except:
+         return render(request,'upload/editpagefac.html',{"error":"No match found!"})
+      context={'q':q}
+      return render(request,'upload/faceditform.html',context)
+   else:
+      return render(request,'upload/editpagefac.html')          
+      
+
+def studsave(request):
+   if request.method=='POST':
+      qset=[]
+      start=int(request.POST['range'].split('-')[0])
+      end=int(request.POST['range'].split('-')[1])
+      for i in range(start,end+1):
+        for q in stud.objects.all():
+          if((int(q.admno.split('/')[0])==i)and(q.branch==request.POST['dept'])):
+             qset.append(q) 
+      for q in qset:
+       q.name=request.POST.get('name'+str(q.pk))
+       q.course=request.POST.get('course'+str(q.pk))
+       q.branch=request.POST.get('branch'+str(q.pk))
+       q.admno=request.POST.get('admno'+str(q.pk))
+       q.validtill=request.POST.get('validtill'+str(q.pk))
+       q.dateofbirth=request.POST.get('dateofbirth'+str(q.pk))
+       q.bloodgroup=request.POST.get('bloodgroup'+str(q.pk))
+       q.address=request.POST.get('address'+str(q.pk))
+       q.contact1=request.POST.get('contact1'+str(q.pk))
+       q.contact2=request.POST.get('contact2'+str(q.pk))  
+       q.clss=request.POST.get('clss'+str(q.pk))
+       if(request.FILES.get('photo'+str(q.pk))):
+           os.system('rm '+q.photo.url)
+           q.photo=request.FILES.get('photo'+str(q.pk))
+       q.save()
+   return render(request,'upload/home.html')
+   
+def facsave(request):
+   if request.method=='POST':
+       q=faculty.objects.get(name=request.POST['name'])
+       q.name=request.POST.get('name')
+       q.designation=request.POST.get('designation')
+       q.dateofbirth=request.POST.get('dateofbirth')
+       q.bloodgroup=request.POST.get('bloodgroup')
+       q.address=request.POST.get('address')
+       q.contact=request.POST.get('contact')
+       if(request.FILES.get('photo')):
+           os.system('rm '+q.photo.url)
+           q.photo=request.FILES.get('photo')
+       q.save()
+       return render(request,'upload/home.html')
+   
+def delstud(request):
+   if request.method=='POST':
+      try:
+         q=stud.objects.get(admno=request.POST['adm'])
+         adf=q.admno.split('/')[0]+'front.pdf'
+         adb=q.admno.split('/')[0]+'back.pdf'
+         pho=q.photo.url
+         q.delete()
+         os.system('rm '+pho)
+         os.system('rm '+adb)
+         os.system('rm '+adf)
+         return render(response,'upload/home.html')
+      except ObjectDoesNotExist:
+         return render(request,'upload/studel.html',{"error":"No match found!"})
+      except:
+         return render(request,'upload/studel.html',{"error":"Deleted Succesfully"})
+      context={'q':q}
+      return render(request,'upload/studel.html',context)
+   else:
+      return render(request,'upload/studel.html')          
+
+def delfac(request):
+   if request.method=='POST':
+      try:
+         q=faculty.objects.get(name=request.POST['name'])
+         pho=q.photo.url
+         q.delete()
+         os.system('rm '+pho)
+         return render(response,'upload/home.html')
+      except ObjectDoesNotExist:
+         return render(request,'upload/facdel.html',{"error":"No match found!"})
+      except:
+         return render(request,'upload/facdel.html',{"error":"Deleted Succesfully"})
+      context={'q':q}
+      return render(request,'upload/facdel.html',context)
+   else:
+      return render(request,'upload/facdel.html')          
+
+def siddesign(request):
+	try:
+		instance = SDesign.objects.get()
+		return HttpResponseRedirect('/idcard/pdfsdesign')
+	except SDesign.DoesNotExist:
+		form = Sd(request.POST or None, request.FILES or None)
+		if form.is_valid():
+			instance = form.save(commit=False)
+			instance.save()
+			return HttpResponseRedirect('/idcard/pdfsdesign')
+		context = {
+			"form": form,
+		}
+		return render(request, "upload/siddesign.html", context)
+		#return HttpResponseRedirect('/pdfsdesign')
+
+def pdfsdesign(request):
+	try:
+		instance = SDesign.objects.get()
+		form = Sd(request.POST or None, request.FILES or None, instance=instance)
+		if form.is_valid():
+			instance = form.save(commit=False)
+			instance.save()
+                return render(request, "upload/pdfsdesign.html", {"form": form})
+	except SDesign.DoesNotExist:
+		return HttpResponseRedirect('/upload/siddesign')
+

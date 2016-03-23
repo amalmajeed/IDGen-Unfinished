@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>	
+<head>
+<title>Edit Student Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="/static/css/style.css">
+<meta name="keywords" content="Enter Student Details For Id Card" />
+</head>
+
+<body>
+{%if error_message%}
+<p>{{error_message}}</p>
+{%endif%}
+	<div class="logo"></div> 
+	<div class="login-block">
+	    <h1>Enter Student Details</h1>
+	    <form method="post" action="{% url 'singlestud' %}" enctype="multipart/form-data">{% csrf_token %}
+	       {{ form.as_p }}
+	    <input type='submit' value='Submit' style=background-color:#FF656C;/>
+	    </form>
+
+	</div>
+
+</body>
+
+</html>

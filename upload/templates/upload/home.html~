@@ -1,0 +1,8 @@
+<p><h1 style="text-align:center">IDGEN</h1></p>
+<div><a href="{%url 'student' %}">STUDENT-REGISTRATION</a></div>
+<div><a href="{%url 'faculty' %}">FACULTY-REGISTRATION</a></div>
+<div><a href="{%url 'editpagestud' %}">STUDENT-EDIT</a></div>
+<div><a href="{%url 'editpagefac' %}">FACULTY-EDIT</a></div>
+<div><a href="{%url 'studel' %}">INVALID STUDENT DELETION</a></div>
+<div><a href="{%url 'facdel' %}">INVALID FACULTY DELETION</a></div>
+<div><a href="{%url 'genpdf' %}">STUDENT PDF GENERATION</a></div>

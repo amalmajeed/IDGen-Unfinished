@@ -1,0 +1,5 @@
+from django.conf.urls import url,include
+from django.contrib import admin
+import views
+
+urlpatterns = [url(r'^$',views.mainpage,name='Main'),url(r'^student/$',views.student,name='student'),url(r'^faculty/$',views.faculty1,name='faculty'),url(r'^timage/$',views.timage,name='timage'),url(r'^genpdf/$',views.generatepdf,name='genpdf'),url(r'^editpagestud/$',views.editstud,name='editpagestud'),url(r'^studsave/$',views.studsave,name='studsave'),url(r'^editpagefac/$',views.editfac,name='editpagefac'),url(r'^facsave/$',views.facsave,name='facsave'),url(r'^studel/$',views.delstud,name='studel'),url(r'^facdel/$',views.delfac,name='facdel'),url(r'^siddesign$', views.siddesign, name='siddesign'),url(r'^pdfsdesign$', views.pdfsdesign, name='pdfsdesign')]

@@ -1,0 +1,12 @@
+{% if error %}
+ <p>{{error}}</p>
+{%endif%}
+<form action="{% url 'studel' %}" method="post">
+{% csrf_token %}
+<div>
+<label for="adm">Admission Number To Delete :</label><input type="text" name="adm" id="adm"/>
+</div>
+<div>
+<input type="submit" value="Submit" />
+</div>
+</form>

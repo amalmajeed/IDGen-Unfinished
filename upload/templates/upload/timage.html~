@@ -1,0 +1,6 @@
+<ul>
+{% for i in q %}
+<!--<li><img src="{{i.photo.url }}"/></li>-->
+{{i.photo.url}}
+{% endfor %}
+</ul>

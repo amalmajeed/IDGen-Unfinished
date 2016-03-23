@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>	
+<head>
+<title>Edit Student Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="/static/css/style.css">
+<meta name="keywords" content="Edit Student Details For Id Card" />
+</head>
+<form action="{%url 'editpagestud' %}" method="post">
+{% csrf_token %}
+<!--<div><label for="selection">None</label><input type="radio" name="selection" value="none"></div>-->
+{%for i in students%}
+
+<div>
+	<p>Name: {{i.name}}</p>
+	<p>Admission Number: {{i.admno}}</p>
+	<div><label for="branch{{i.pk}}">Branch: </label><input type="text" name="branch{{i.pk}}" id="branch{{i.pk}}" value="{{i.branch}}"/></div>
+	<div><label for="clss{{i.pk}}">Class: </label><input type="text" name="clss{{i.pk}}" id="clss{{i.pk}}" value="{{i.clss}}"/></div>
+	<div><label for="rollno{{i.pk}}">Roll No: </label><input type="text" name="rollno{{i.pk}}" id="rollno{{i.pk}}" value="{{i.rollno}}"/></div>
+	<div><a href="/idcard/studentDetailedEdit/{{i.id}}"><button type="button">Detailed Edit</button></a></div>
+</div>
+
+{%endfor%}
+<input type='submit' value='Submit' style=background-color:#FF656C;/>
+</form>
+</html>

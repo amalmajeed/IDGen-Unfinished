@@ -1,0 +1,12 @@
+{% if error %}
+ <p>{{error}}</p>
+{%endif%}
+<form action="{% url 'editpagefac' %}" method="post">
+{% csrf_token %}
+<div>
+<label for="name">Staff Name:</label><input type="text" name="name" id="name"/>
+</div>
+<div>
+<input type="submit" value="Submit" />
+</div>
+</form>

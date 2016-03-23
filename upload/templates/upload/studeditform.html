@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>	
+<head>
+<title>Edit Student Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" type="text/css" href="/static/css/style.css">
+<meta name="keywords" content="Edit Student Details For Id Card" />
+</head>
+
+<body>
+	<div class="logo"></div> 
+	<div class="login-block">
+	    <h1>Edit Student Details</h1>
+	    <form method="post" action="{% url 'studsave' %}" enctype="multipart/form-data">{% csrf_token %}
+	        <div><h1>{{i.admno}}</h1></div>
+			<div>
+			<label for="name{{i.pk}}">Name:</label><input type="text" name="name{{i.pk}}" id="name{{i.pk}}" value="{{i.name}}"/></div>
+			<div><label for="course{{i.pk}}">Course:</label><input type="text" name="course{{i.pk}}" id="course{{i.pk}}" value="{{i.course}}"/></div>
+			<div><label for="branch{{i.pk}}">Branch:</label><input type="text" name="branch{{i.pk}}" id="branch{{i.pk}}" value="{{i.branch}}"/></div>
+			<div><label for="admno{{i.pk}}">Admission Number:</label><input type="text" name="admno{{i.pk}}" id="admno{{i.pk}}" value="{{i.admno}}"/></div>
+			<div><label for="validtill{{i.pk}}">Valid Till:</label><input type="text" name="validtill{{i.pk}}" id="validtill{{i.pk}}" value="{{i.validtill.year}}-{{i.validtill.month}}-{{i.validtill.day}}"/></div>
+			<div><label for="dateofbirth{{i.pk}}">Date of Birth:</label><input type="text" name="dateofbirth{{i.pk}}" id="dateofbirth{{i.pk}}" value="{{i.dateofbirth.year}}-{{i.dateofbirth.month}}-{{i.dateofbirth.day}}"/></div>
+			<div><label for="clss{{i.pk}}">Class:</label><input type="text" name="clss{{i.pk}}" id="clss{{i.pk}}" value="{{i.clss}}"/></div>
+			<div><label for="rollno{{i.pk}}">Roll No:</label><input type="text" name="rollno{{i.pk}}" id="rollno{{i.pk}}" value="{{i.rollno}}"/></div>
+			<div><label for="bloodgroup{{i.pk}}">Blood Group:</label><input type="text" name="bloodgroup{{i.pk}}" id="bloodgroup{{i.pk}}" value="{{i.bloodgroup}}"/></div>
+			<div><label for="address{{i.pk}}">Address:</label><input type="text" name="address{{i.pk}}" id="address{{i.pk}}" value="{{i.address}}"/></div>
+			<div><label for="contact1{{i.pk}}">Contact 1:</label><input type="text" name="contact1{{i.pk}}" id="contact1{{i.pk}}" value="{{i.contact1}}"/></div>
+			<div><label for="contact2{{i.pk}}">Contact 2:</label><input type="text" name="contact2{{i.pk}}" id="contact2{{i.pk}}" value="{{i.contact2}}"/></div>
+			<div><label for="photo{{i.pk}}">Photo:</label><input type="file" name="photo{{i.pk}}" id="photo{{i.pk}}" value="{{i.photo}}"/></div>
+			<input type="hidden" name="stu" id="range" value="{{i.pk}}">
+			<input type='submit' value='Submit' style=background-color:#FF656C;/>
+	    </form>
+	</div>
+
+</body>
+
+</html>
