@@ -6,5 +6,7 @@ Mini Project for College ID Card Generation System for Students and Faculty.
 Contact:
 
 Amal Majeed
+
 amal.majeed.mec@gmail.com
+
 +91-8891696434
