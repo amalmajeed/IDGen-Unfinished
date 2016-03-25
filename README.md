@@ -20,6 +20,6 @@ Contact:
 
 Amal Majeed
 
-amal.majeed.mec@gmail.com
+amal.majeed.mec@gmail.com / amalmajeed7@gmail.com
 
 +91-8891696434
